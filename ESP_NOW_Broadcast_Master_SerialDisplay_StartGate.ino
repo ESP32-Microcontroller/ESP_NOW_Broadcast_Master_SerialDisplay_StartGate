@@ -26,6 +26,8 @@
 #define SCL0_Pin 19
 #define SDA0_Pin 20
 
+int readyLED = 14;
+
 /* Classes */
 
 // Creating a new class that inherits from the ESP_NOW_Peer class is required.
@@ -66,7 +68,7 @@ public:
 /* Global Variables */
 
 uint32_t msg_count = 0;
-ezButton limitSwitch(12);
+ezButton gateSwitch(12);
 
 // Create a broadcast peer object
 ESP_NOW_Broadcast_Peer broadcast_peer(ESPNOW_WIFI_CHANNEL, WIFI_IF_STA, NULL);
@@ -101,7 +103,7 @@ void setup() {
   pinMode(firstFingerButtonPin, INPUT); 
   pinMode(secondFingerButtonPin, INPUT); 
   pinMode(thirdFingerButtonPin, INPUT); 
-  limitSwitch.setDebounceTime(50);
+  gateSwitch.setDebounceTime(50);
 
   Serial.begin(115200);
   Wire.begin(SDA0_Pin, SCL0_Pin);
@@ -137,13 +139,15 @@ void setup() {
   }
 
   Serial.println("Setup complete. Listening for events to transmit.");
+  pinMode(readyLED, OUTPUT);
+  digitalWrite(readyLED, HIGH);
 }
 
 void loop() {
 
-  limitSwitch.loop();
+  gateSwitch.loop();
 
-  if (limitSwitch.isPressed()) { // START_GATE_OPENED
+  if (gateSwitch.isPressed()) { // START_GATE_OPENED
     char data[32];
     snprintf(data, sizeof(data), "START_GATE_OPENED");
 
@@ -153,9 +157,10 @@ void loop() {
     if (!broadcast_peer.send_message((uint8_t *)data, sizeof(data))) {
       Serial.println("Failed to broadcast message");
     }
+    digitalWrite(readyLED, LOW);
   }
 
-  if (limitSwitch.isReleased()) { // START_GATE_CLOSED
+  if (gateSwitch.isReleased()) { // START_GATE_CLOSED
     char data[32];
     snprintf(data, sizeof(data), "START_GATE_CLOSED");
 
@@ -165,7 +170,7 @@ void loop() {
     if (!broadcast_peer.send_message((uint8_t *)data, sizeof(data))) {
       Serial.println("Failed to broadcast message");
     }
-
+    digitalWrite(readyLED, HIGH);
   }
 
   // delay(10);
