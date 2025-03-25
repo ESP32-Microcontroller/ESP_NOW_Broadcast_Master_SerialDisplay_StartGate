@@ -26,7 +26,7 @@
 #define SCL0_Pin 19
 #define SDA0_Pin 20
 
-int readyLED = 14;
+int readyLED = 27;
 
 /* Classes */
 
@@ -68,7 +68,7 @@ public:
 /* Global Variables */
 
 uint32_t msg_count = 0;
-ezButton gateSwitch(12);
+ezButton gateSwitch(26);
 
 // Create a broadcast peer object
 ESP_NOW_Broadcast_Peer broadcast_peer(ESPNOW_WIFI_CHANNEL, WIFI_IF_STA, NULL);
